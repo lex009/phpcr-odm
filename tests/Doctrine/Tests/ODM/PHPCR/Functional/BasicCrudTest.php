@@ -471,6 +471,90 @@ class BasicCrudTest extends \Doctrine\Tests\ODM\PHPCR\PHPCRFunctionalTestCase
         $this->assertEquals($user->parameters->toArray(), $assocArray);
     }
 
+    public function testAssocArrayProperty()
+    {
+        $user = new User();
+        $user->username = "test";
+        $assocArray = array('foo' => 'bar', 'ding' => 'dong');
+        $user->requirements = $assocArray;
+        $user->id = '/functional/test';
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find(null, '/functional/test');
+
+        $this->assertNotNull($user);
+        $this->assertEquals($user->requirements, $assocArray);
+
+        $assocArray = array('foo' => 'bar', 'hello' => 'world', 'check' => 'out');
+        $user->requirements = $assocArray;
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find(null, '/functional/test');
+
+        $this->assertNotNull($user);
+        $this->assertEquals($user->requirements, $assocArray);
+
+        unset($user->requirements['foo']);
+        unset($assocArray['foo']);
+        $user->requirements['boo'] = 'yah';
+        $assocArray['boo'] = 'yah';
+        $user->requirements['hello'] = 'welt';
+        $assocArray['hello'] = 'welt';
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find(null, '/functional/test');
+
+        $this->assertNotNull($user);
+        $this->assertEquals($user->requirements, $assocArray);
+    }
+
+    public function testArrayProperty()
+    {
+        $user = new User();
+        $user->username = "test";
+        $array = array('foo', 'bar', 'ding', 'dong');
+        $user->options = $array;
+        $user->id = '/functional/test';
+
+        $this->dm->persist($user);
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find(null, '/functional/test');
+
+        $this->assertNotNull($user);
+        $this->assertEquals($user->options, $array);
+
+        $array = array('ding');
+        $user->options = $array;
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find(null, '/functional/test');
+
+        $this->assertNotNull($user);
+        $this->assertEquals($user->options, $array);
+
+        $array = array();
+        $user->options = $array;
+
+        $this->dm->flush();
+        $this->dm->clear();
+
+        $user = $this->dm->find(null, '/functional/test');
+
+        $this->assertNotNull($user);
+        $this->assertEquals($user->options, $array);
+    }
+
     public function testVersionedDocument()
     {
         $user = new VersionTestObj();
@@ -505,6 +589,10 @@ class User
     public $numbers;
     /** @PHPCRODM\String(name="parameters", assoc="") */
     public $parameters;
+    /** @PHPCRODM\String(name="parameters", array=true) */
+    public $options;
+    /** @PHPCRODM\String(name="parameters", assoc="foo", array=true) */
+    public $requirements;
 }
 
 /**

@@ -864,7 +864,13 @@ class ClassMetadata implements ClassMetadataInterface
      */
     public function isCollectionValuedAssociation($fieldName)
     {
-        return isset($this->fieldMappings[$fieldName]) && true === $this->fieldMappings[$fieldName]['multivalue'];
+        if (empty($this->fieldMappings[$fieldName])) {
+            return false;
+        }
+        if (!empty($this->fieldMappings[$fieldName]['array'])) {
+            return 'array';
+        }
+        return true === $this->fieldMappings[$fieldName]['multivalue'];
     }
 
     /**
@@ -954,6 +960,11 @@ class ClassMetadata implements ClassMetadataInterface
         $mapping = $this->validateAndCompleteFieldMapping($mapping, $inherited);
 
         if (!$inherited) {
+            if (!empty($mapping['array'])) {
+                $mapping['multivalue'] = true;
+            } else {
+                $mapping['array'] = false;
+            }
             if (!isset($mapping['multivalue'])) {
                 $mapping['multivalue'] = false;
             }

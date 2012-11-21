@@ -89,6 +89,8 @@ class Property
     public $type = 'undefined';
     /** @var boolean */
     public $multivalue = false;
+    /** @var boolean */
+    public $array = false;
     /** @var string */
     public $assoc;
 }
